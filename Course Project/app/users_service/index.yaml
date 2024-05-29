@@ -1,0 +1,240 @@
+openapi: 3.1.0
+info:
+  title: FastAPI
+  version: 0.1.0
+paths:
+  /api/users/find_by_name:
+    get:
+      tags:
+      - Users
+      summary: Find By Prefix
+      operationId: find_by_prefix_api_users_find_by_name_get
+      parameters:
+      - name: name
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Name
+      - name: surname
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Surname
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/users/find_by_login:
+    get:
+      tags:
+      - Users
+      summary: Find By Prefix
+      operationId: find_by_prefix_api_users_find_by_login_get
+      parameters:
+      - name: login
+        in: query
+        required: true
+        schema:
+          title: Login
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/users/info:
+    get:
+      tags:
+      - Users
+      summary: Find By Prefix
+      operationId: find_by_prefix_api_users_info_get
+      parameters:
+      - name: id
+        in: query
+        required: true
+        schema:
+          type: integer
+          title: Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/users/new_user:
+    post:
+      tags:
+      - Users
+      summary: New User
+      operationId: new_user_api_users_new_user_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewUserModel'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/users/delete:
+    delete:
+      tags:
+      - Users
+      summary: Delete User
+      operationId: delete_user_api_users_delete_delete
+      parameters:
+      - name: id
+        in: query
+        required: true
+        schema:
+          type: integer
+          title: Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/users/update:
+    put:
+      tags:
+      - Users
+      summary: Find By Prefix
+      operationId: find_by_prefix_api_users_update_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserModel'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    NewUserModel:
+      properties:
+        user_login:
+          type: string
+          title: User Login
+        user_name:
+          type: string
+          title: User Name
+        user_surname:
+          type: string
+          title: User Surname
+        user_password:
+          type: string
+          title: User Password
+      type: object
+      required:
+      - user_login
+      - user_name
+      - user_surname
+      - user_password
+      title: NewUserModel
+    UpdateUserModel:
+      properties:
+        user_id:
+          type: integer
+          title: User Id
+        user_login:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Login
+        user_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Name
+        user_surname:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Surname
+        user_password:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Password
+      type: object
+      required:
+      - user_id
+      title: UpdateUserModel
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError

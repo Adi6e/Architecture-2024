@@ -1,0 +1,123 @@
+version: '3.7'
+services:
+
+  gateway_service:
+    tty: true
+    container_name: gateway_service
+    build:
+      context: ./gateway_api
+      dockerfile: Dockerfile
+    ports:
+      - 8084:8080
+    networks:
+      - arch-network
+
+  users_service:
+    tty: true
+    container_name: user_service
+    build:
+      context: ./users_service
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    networks:
+      - arch-network
+    depends_on:
+      data_generator:
+        condition: service_completed_successfully
+
+  orders:
+    container_name: orders
+    build:
+      context: ./orders_api/
+      dockerfile: Dockerfile
+    ports:
+      - 8081:8080
+    networks:
+      - arch-network
+    depends_on:
+      data_generator:
+        condition: service_completed_successfully
+
+  services:
+    container_name: services
+    build:
+      context: ./services_api/
+      dockerfile: Dockerfile
+    ports:
+      - 8082:8080
+    networks:
+      - arch-network
+    depends_on:
+      data_generator:
+        condition: service_completed_successfully
+
+  db:
+    container_name: postgres
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=stud
+      - POSTGRES_PASSWORD=stud
+      - PGDATA=/data/postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d postgres" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - arch-network
+
+  mongo:
+    image: mongo
+    container_name: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - 27017:27017
+    networks:
+      - arch-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+
+
+  data_generator:
+    container_name: data_generator
+    build:
+      context: ./init/
+      dockerfile: Dockerfile
+    networks:
+      - arch-network
+    depends_on:
+      mongo:
+        condition: service_healthy
+      db: 
+        condition: service_healthy
+
+  redis:
+    image: redis
+    container_name: redis
+    restart: always
+    ports:
+      - 6379:6379
+    environment:
+      - REDIS_PASSWORD=rina
+    networks:
+      - arch-network        
+
+networks:
+  arch-network:
+    driver: "bridge"
+    external: false
